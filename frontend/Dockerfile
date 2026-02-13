@@ -1,5 +1,8 @@
 FROM node:18-alpine
 
+# Install Docker CLI
+RUN apk add --no-cache docker-cli git
+
 WORKDIR /app
 
 COPY package*.json ./

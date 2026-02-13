@@ -1,32 +1,22 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./backend
-    container_name: paas-backend
+  app:
+    build: ./frontend
+    container_name: paas-app
     ports:
-      - "8000:8000"
+      - "3000:3000"
     volumes:
-      - ./backend:/app
-      - ./data:/data
+      - ./frontend:/app
+      - ./data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
       - ./nginx-configs:/etc/nginx/sites-enabled
     environment:
-      - DATABASE_URL=sqlite:///data/paas.db
       - DOMAIN=launch.me
       - NGINX_CONFIG_PATH=/etc/nginx/sites-enabled
-      - PROJECTS_BASE_PATH=/data/projects
-    restart: unless-stopped
-    networks:
-      - paas-network
-
-  frontend:
-    build: ./frontend
-    container_name: paas-frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - PROJECTS_BASE_PATH=/app/data/projects
+      - PORT_RANGE_START=10000
+      - PORT_RANGE_END=20000
     restart: unless-stopped
     networks:
       - paas-network

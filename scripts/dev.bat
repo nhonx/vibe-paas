@@ -7,27 +7,8 @@ REM Create data directories
 if not exist "data\projects" mkdir data\projects
 if not exist "nginx-configs" mkdir nginx-configs
 
-REM Start backend
-echo Starting backend...
-cd backend
-
-if not exist "venv" (
-    echo Creating virtual environment...
-    python -m venv venv
-)
-
-call venv\Scripts\activate.bat
-pip install -r requirements.txt
-
-if not exist ".env" (
-    copy .env.example .env
-)
-
-start "PaaS Backend" cmd /k "venv\Scripts\activate.bat && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
-cd ..
-
-REM Start frontend
-echo Starting frontend...
+REM Start application
+echo Starting Next.js application...
 cd frontend
 
 if not exist "node_modules" (
@@ -35,18 +16,25 @@ if not exist "node_modules" (
     call npm install
 )
 
-start "PaaS Frontend" cmd /k "npm run dev"
+if not exist ".env.local" (
+    echo DOMAIN=launch.me > .env.local
+    echo NGINX_CONFIG_PATH=../nginx-configs >> .env.local
+    echo PROJECTS_BASE_PATH=../data/projects >> .env.local
+    echo PORT_RANGE_START=10000 >> .env.local
+    echo PORT_RANGE_END=20000 >> .env.local
+)
+
+start "PaaS Application" cmd /k "npm run dev"
 cd ..
 
 echo.
 echo ==========================================
 echo PaaS Development Environment Running
 echo ==========================================
-echo Backend: http://localhost:8000
-echo Frontend: http://localhost:3000
-echo API Docs: http://localhost:8000/docs
+echo Application: http://localhost:3000
+echo API: http://localhost:3000/api
 echo.
-echo Close the terminal windows to stop services
+echo Close the terminal window to stop
 echo ==========================================
 
 pause

@@ -1,5 +1,5 @@
 {
-  "name": "paas-frontend",
+  "name": "paas-system",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -13,12 +13,16 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "axios": "^1.6.5",
-    "swr": "^2.2.4"
+    "swr": "^2.2.4",
+    "better-sqlite3": "^9.2.2",
+    "dockerode": "^4.0.2",
+    "simple-git": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
+    "@types/better-sqlite3": "^7.6.8",
     "typescript": "^5.3.3",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.33",

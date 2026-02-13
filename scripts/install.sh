@@ -26,12 +26,12 @@ apt-get install -y \
     curl \
     wget \
     git \
-    nginx \
-    python3 \
-    python3-pip \
-    python3-venv \
-    nodejs \
-    npm
+    nginx
+
+# Install Node.js 18
+echo "Installing Node.js 18..."
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+apt-get install -y nodejs
 
 # Install Docker
 echo "Installing Docker..."
@@ -65,28 +65,27 @@ echo "Setting up project files..."
 # Note: You should either clone from git or copy files here
 # git clone <your-repo-url> .
 
-# Set up backend
-echo "Setting up backend..."
-cd $PROJECT_DIR/backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Create .env file
-if [ ! -f .env ]; then
-    cp .env.example .env
-    echo "Created .env file. Please configure it with your settings."
-fi
-
 # Create data directories
 mkdir -p $PROJECT_DIR/data/projects
 mkdir -p $PROJECT_DIR/nginx-configs
 
-# Set up frontend
-echo "Setting up frontend..."
+# Set up application
+echo "Setting up Next.js application..."
 cd $PROJECT_DIR/frontend
 npm install
 npm run build
+
+# Create .env.local file
+if [ ! -f .env.local ]; then
+    cat > .env.local <<EOF
+DOMAIN=launch.me
+NGINX_CONFIG_PATH=/etc/nginx/sites-enabled
+PROJECTS_BASE_PATH=$PROJECT_DIR/data/projects
+PORT_RANGE_START=10000
+PORT_RANGE_END=20000
+EOF
+    echo "Created .env.local file."
+fi
 
 # Configure Nginx
 echo "Configuring Nginx..."
@@ -99,38 +98,21 @@ nginx -t
 # Reload Nginx
 systemctl reload nginx
 
-# Create systemd service for backend
+# Create systemd service
 echo "Creating systemd service..."
-cat > /etc/systemd/system/paas-backend.service <<EOF
+cat > /etc/systemd/system/paas.service <<EOF
 [Unit]
-Description=PaaS Backend API
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=$PROJECT_DIR/backend
-Environment="PATH=$PROJECT_DIR/backend/venv/bin"
-ExecStart=$PROJECT_DIR/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# Create systemd service for frontend
-cat > /etc/systemd/system/paas-frontend.service <<EOF
-[Unit]
-Description=PaaS Frontend UI
-After=network.target
+Description=PaaS Application
+After=network.target docker.service
+Requires=docker.service
 
 [Service]
 Type=simple
 User=root
 WorkingDirectory=$PROJECT_DIR/frontend
-Environment="NEXT_PUBLIC_API_URL=http://localhost:8000"
 ExecStart=/usr/bin/npm start
 Restart=always
+Environment="NODE_ENV=production"
 
 [Install]
 WantedBy=multi-user.target
@@ -139,13 +121,10 @@ EOF
 # Reload systemd
 systemctl daemon-reload
 
-# Enable and start services
-echo "Starting services..."
-systemctl enable paas-backend
-systemctl start paas-backend
-
-systemctl enable paas-frontend
-systemctl start paas-frontend
+# Enable and start service
+echo "Starting service..."
+systemctl enable paas
+systemctl start paas
 
 # Configure firewall (if ufw is installed)
 if command -v ufw &> /dev/null; then
@@ -162,10 +141,9 @@ echo ""
 echo "Next steps:"
 echo "1. Configure your domain's DNS to point to this server"
 echo "2. Set up wildcard DNS (*.launch.me) to point to this server"
-echo "3. Edit $PROJECT_DIR/backend/.env with your settings"
-echo "4. Restart services: systemctl restart paas-backend paas-frontend"
+echo "3. Edit $PROJECT_DIR/frontend/.env.local with your settings"
+echo "4. Restart service: systemctl restart paas"
 echo "5. Access the UI at http://launch.me"
 echo ""
 echo "Service status:"
-systemctl status paas-backend --no-pager
-systemctl status paas-frontend --no-pager
+systemctl status paas --no-pager

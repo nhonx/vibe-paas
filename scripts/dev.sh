@@ -10,49 +10,40 @@ echo "Starting PaaS in development mode..."
 mkdir -p data/projects
 mkdir -p nginx-configs
 
-# Start backend in background
-echo "Starting backend..."
-cd backend
-if [ ! -d "venv" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv venv
-fi
-
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Create .env if it doesn't exist
-if [ ! -f .env ]; then
-    cp .env.example .env
-fi
-
-uvicorn main:app --reload --host 0.0.0.0 --port 8000 &
-BACKEND_PID=$!
-cd ..
-
-# Start frontend
-echo "Starting frontend..."
+# Start application
+echo "Starting Next.js application..."
 cd frontend
+
 if [ ! -d "node_modules" ]; then
     echo "Installing dependencies..."
     npm install
 fi
 
+# Create .env.local if it doesn't exist
+if [ ! -f .env.local ]; then
+    cat > .env.local <<EOF
+DOMAIN=launch.me
+NGINX_CONFIG_PATH=../nginx-configs
+PROJECTS_BASE_PATH=../data/projects
+PORT_RANGE_START=10000
+PORT_RANGE_END=20000
+EOF
+fi
+
 npm run dev &
-FRONTEND_PID=$!
+APP_PID=$!
 cd ..
 
 echo ""
 echo "=========================================="
 echo "PaaS Development Environment Running"
 echo "=========================================="
-echo "Backend: http://localhost:8000"
-echo "Frontend: http://localhost:3000"
-echo "API Docs: http://localhost:8000/docs"
+echo "Application: http://localhost:3000"
+echo "API: http://localhost:3000/api"
 echo ""
-echo "Press Ctrl+C to stop all services"
+echo "Press Ctrl+C to stop"
 echo "=========================================="
 
 # Wait for Ctrl+C
-trap "kill $BACKEND_PID $FRONTEND_PID; exit" INT
+trap "kill $APP_PID; exit" INT
 wait

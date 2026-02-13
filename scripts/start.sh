@@ -1,24 +1,17 @@
 #!/bin/bash
 
-# Start PaaS services
+# Start PaaS service
 
 set -e
 
-echo "Starting PaaS services..."
+echo "Starting PaaS service..."
 
-# Start backend
-echo "Starting backend..."
-systemctl start paas-backend
-
-# Start frontend
-echo "Starting frontend..."
-systemctl start paas-frontend
+systemctl start paas
 
 # Check status
 echo ""
 echo "Service status:"
-systemctl status paas-backend --no-pager
-systemctl status paas-frontend --no-pager
+systemctl status paas --no-pager
 
 echo ""
-echo "PaaS services started successfully!"
+echo "PaaS service started successfully!"

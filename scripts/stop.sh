@@ -1,18 +1,12 @@
 #!/bin/bash
 
-# Stop PaaS services
+# Stop PaaS service
 
 set -e
 
-echo "Stopping PaaS services..."
+echo "Stopping PaaS service..."
 
-# Stop backend
-echo "Stopping backend..."
-systemctl stop paas-backend
-
-# Stop frontend
-echo "Stopping frontend..."
-systemctl stop paas-frontend
+systemctl stop paas
 
 echo ""
-echo "PaaS services stopped successfully!"
+echo "PaaS service stopped successfully!"
