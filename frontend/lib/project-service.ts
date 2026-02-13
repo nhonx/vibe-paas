@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 import { simpleGit } from 'simple-git';
 import { projectDb, Project, ProjectCreate } from './db';
 import { dockerService } from './docker';
@@ -33,7 +34,7 @@ async function prepareProjectDirectory(project: Project): Promise<string> {
     fs.rmSync(projectDir, { recursive: true, force: true });
   }
 
-  fs.mkdirSync(projectDir, { recursive: true });
+  fs.mkdirSync(projectDir, { recursive: true, mode: 0o755 });
 
   if (project.source_type === 'github') {
     // Clone from GitHub
@@ -52,7 +53,39 @@ async function prepareProjectDirectory(project: Project): Promise<string> {
     }
   }
 
+  // Fix permissions for Nginx access
+  fixProjectPermissions(projectDir);
+
   return projectDir;
+}
+
+function fixProjectPermissions(projectDir: string): void {
+  try {
+    const { execSync } = require('child_process');
+    
+    console.log(`Fixing permissions for: ${projectDir}`);
+    
+    // Set directory permissions to 755 (rwxr-xr-x)
+    execSync(`find "${projectDir}" -type d -exec chmod 755 {} \\;`, { stdio: 'pipe' });
+    
+    // Set file permissions to 644 (rw-r--r--)
+    execSync(`find "${projectDir}" -type f -exec chmod 644 {} \\;`, { stdio: 'pipe' });
+    
+    // Change ownership to www-data (Nginx user) if running as root
+    try {
+      execSync(`chown -R www-data:www-data "${projectDir}"`, { stdio: 'pipe' });
+      console.log(`✓ Ownership changed to www-data:www-data`);
+    } catch (error) {
+      // If not running as root, at least ensure readable by all
+      console.log(`⚠ Cannot change ownership (not root), ensuring world-readable`);
+      execSync(`chmod -R a+rX "${projectDir}"`, { stdio: 'pipe' });
+    }
+    
+    console.log(`✓ Permissions fixed for ${projectDir}`);
+  } catch (error: any) {
+    console.error(`Failed to fix permissions: ${error.message}`);
+    // Don't throw - permissions might still work
+  }
 }
 
 function createDockerfile(projectDir: string, launchCommand?: string): string {
@@ -145,6 +178,9 @@ export const projectService = {
       const projectDir = await prepareProjectDirectory(project);
 
       if (project.type === 'static') {
+        // Ensure permissions are correct before configuring Nginx
+        fixProjectPermissions(projectDir);
+        
         // Configure Nginx for static site
         nginxService.createStaticConfig(project.subdomain, projectDir);
         projectDb.update(projectId, { status: 'running' });
