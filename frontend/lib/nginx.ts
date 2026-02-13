@@ -10,6 +10,10 @@ export const nginxService = {
     try {
       const configFile = path.join(NGINX_CONFIG_PATH, `${subdomain}.conf`);
       
+      console.log(`Creating static Nginx config for ${subdomain}.${DOMAIN}`);
+      console.log(`Config file: ${configFile}`);
+      console.log(`Root path: ${rootPath}`);
+      
       const config = `server {
     listen 80;
     server_name ${subdomain}.${DOMAIN};
@@ -39,10 +43,26 @@ export const nginxService = {
 }
 `;
 
-      fs.writeFileSync(configFile, config);
+      // Check if directory exists and is writable
+      if (!fs.existsSync(NGINX_CONFIG_PATH)) {
+        console.error(`Nginx config path does not exist: ${NGINX_CONFIG_PATH}`);
+        return false;
+      }
+
+      // Write config file
+      fs.writeFileSync(configFile, config, { mode: 0o644 });
+      console.log(`✓ Config file written: ${configFile}`);
+      
+      // Verify file was created
+      if (!fs.existsSync(configFile)) {
+        console.error(`Failed to create config file: ${configFile}`);
+        return false;
+      }
+      
       return this.reloadNginx();
-    } catch (error) {
-      console.error('Failed to create static config:', error);
+    } catch (error: any) {
+      console.error('Failed to create static config:', error.message);
+      console.error('Stack:', error.stack);
       return false;
     }
   },
@@ -50,6 +70,9 @@ export const nginxService = {
   createProxyConfig(subdomain: string, port: number): boolean {
     try {
       const configFile = path.join(NGINX_CONFIG_PATH, `${subdomain}.conf`);
+      
+      console.log(`Creating proxy Nginx config for ${subdomain}.${DOMAIN} -> port ${port}`);
+      console.log(`Config file: ${configFile}`);
       
       const config = `server {
     listen 80;
@@ -79,10 +102,26 @@ export const nginxService = {
 }
 `;
 
-      fs.writeFileSync(configFile, config);
+      // Check if directory exists and is writable
+      if (!fs.existsSync(NGINX_CONFIG_PATH)) {
+        console.error(`Nginx config path does not exist: ${NGINX_CONFIG_PATH}`);
+        return false;
+      }
+
+      // Write config file
+      fs.writeFileSync(configFile, config, { mode: 0o644 });
+      console.log(`✓ Config file written: ${configFile}`);
+      
+      // Verify file was created
+      if (!fs.existsSync(configFile)) {
+        console.error(`Failed to create config file: ${configFile}`);
+        return false;
+      }
+      
       return this.reloadNginx();
-    } catch (error) {
-      console.error('Failed to create proxy config:', error);
+    } catch (error: any) {
+      console.error('Failed to create proxy config:', error.message);
+      console.error('Stack:', error.stack);
       return false;
     }
   },
