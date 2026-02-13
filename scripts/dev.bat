@@ -17,7 +17,7 @@ if not exist "node_modules" (
 )
 
 if not exist ".env.local" (
-    echo DOMAIN=launch.me > .env.local
+    echo DOMAIN=ivibe.site > .env.local
     echo NGINX_CONFIG_PATH=../nginx-configs >> .env.local
     echo PROJECTS_BASE_PATH=../data/projects >> .env.local
     echo PORT_RANGE_START=10000 >> .env.local

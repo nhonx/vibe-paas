@@ -78,7 +78,7 @@ npm run build
 # Create .env.local file
 if [ ! -f .env.local ]; then
     cat > .env.local <<EOF
-DOMAIN=launch.me
+DOMAIN=ivibe.site
 NGINX_CONFIG_PATH=/etc/nginx/sites-enabled
 PROJECTS_BASE_PATH=$PROJECT_DIR/data/projects
 PORT_RANGE_START=10000
@@ -140,10 +140,10 @@ echo "=========================================="
 echo ""
 echo "Next steps:"
 echo "1. Configure your domain's DNS to point to this server"
-echo "2. Set up wildcard DNS (*.launch.me) to point to this server"
+echo "2. Set up wildcard DNS (*.ivibe.site) to point to this server"
 echo "3. Edit $PROJECT_DIR/frontend/.env.local with your settings"
 echo "4. Restart service: systemctl restart paas"
-echo "5. Access the UI at http://launch.me"
+echo "5. Access the UI at http://ivibe.site"
 echo ""
 echo "Service status:"
 systemctl status paas --no-pager

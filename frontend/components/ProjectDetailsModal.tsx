@@ -78,12 +78,12 @@ export default function ProjectDetailsModal({
                 </label>
                 <p className="mt-1 text-lg">
                   <a
-                    href={`http://${project.subdomain}.launch.me`}
+                    href={`http://${project.subdomain}.ivibe.site`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:underline"
                   >
-                    {project.subdomain}.launch.me
+                    {project.subdomain}.ivibe.site
                   </a>
                 </p>
               </div>

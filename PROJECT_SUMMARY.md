@@ -67,7 +67,7 @@ A complete Platform-as-a-Service (PaaS) system for deploying and managing web ap
 
 4. **Nginx Integration**
    - Automatic reverse proxy configuration
-   - Subdomain routing (e.g., `app.launch.me`)
+   - Subdomain routing (e.g., `app.ivibe.site`)
    - Static file serving
    - Security headers
 
@@ -157,7 +157,7 @@ paas/
 2. System clones/copies source files
 3. Nginx configuration is generated
 4. Files are served directly by Nginx
-5. Project accessible at `<name>.launch.me`
+5. Project accessible at `<name>.ivibe.site`
 
 ### Serverside Project Deployment Flow
 
@@ -167,7 +167,7 @@ paas/
 4. Docker image is built
 5. Container is started on random port
 6. Nginx reverse proxy is configured
-7. Project accessible at `<name>.launch.me`
+7. Project accessible at `<name>.ivibe.site`
 
 ## Quick Start
 
@@ -191,7 +191,7 @@ sudo ./scripts/install.sh
 
 Key environment variables in `.env`:
 
-- `DOMAIN`: Your domain (e.g., `launch.me`)
+- `DOMAIN`: Your domain (e.g., `ivibe.site`)
 - `DATABASE_URL`: Database connection string
 - `NGINX_CONFIG_PATH`: Path to Nginx configs
 - `PROJECTS_BASE_PATH`: Where to store project files

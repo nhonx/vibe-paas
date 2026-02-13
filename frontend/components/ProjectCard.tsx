@@ -34,7 +34,7 @@ export default function ProjectCard({
         <div>
           <h3 className="text-xl font-semibold text-gray-900">{project.name}</h3>
           <p className="text-sm text-gray-500 mt-1">
-            {project.subdomain}.launch.me
+            {project.subdomain}.ivibe.site
           </p>
         </div>
         <div className="flex gap-2">

@@ -15,15 +15,15 @@ Before deploying, configure your domain's DNS:
 
 1. Add an A record pointing your domain to your VPS IP:
    ```
-   launch.me → YOUR_VPS_IP
+   ivibe.site → YOUR_VPS_IP
    ```
 
 2. Add a wildcard A record for subdomains:
    ```
-   *.launch.me → YOUR_VPS_IP
+   *.ivibe.site → YOUR_VPS_IP
    ```
 
-This allows the system to route `app1.launch.me`, `app2.launch.me`, etc. to your VPS.
+This allows the system to route `app1.ivibe.site`, `app2.ivibe.site`, etc. to your VPS.
 
 ## Installation Methods
 
@@ -53,7 +53,7 @@ This allows the system to route `app1.launch.me`, `app2.launch.me`, etc. to your
    
    Update the following variables:
    ```
-   DOMAIN=launch.me
+   DOMAIN=ivibe.site
    NGINX_CONFIG_PATH=/etc/nginx/sites-enabled
    PROJECTS_BASE_PATH=/opt/paas/data/projects
    ```
@@ -114,7 +114,7 @@ Install Certbot for Let's Encrypt SSL:
 
 ```bash
 sudo apt-get install certbot python3-certbot-nginx
-sudo certbot --nginx -d launch.me -d *.launch.me
+sudo certbot --nginx -d ivibe.site -d *.ivibe.site
 ```
 
 Note: Wildcard certificates require DNS validation.

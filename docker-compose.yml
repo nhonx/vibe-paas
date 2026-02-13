@@ -12,7 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./nginx-configs:/etc/nginx/sites-enabled
     environment:
-      - DOMAIN=launch.me
+      - DOMAIN=ivibe.site
       - NGINX_CONFIG_PATH=/etc/nginx/sites-enabled
       - PROJECTS_BASE_PATH=/app/data/projects
       - PORT_RANGE_START=10000

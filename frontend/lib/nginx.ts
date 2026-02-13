@@ -3,7 +3,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 
 const NGINX_CONFIG_PATH = process.env.NGINX_CONFIG_PATH || '/etc/nginx/sites-enabled';
-const DOMAIN = process.env.DOMAIN || 'launch.me';
+const DOMAIN = process.env.DOMAIN || 'ivibe.site';
 
 export const nginxService = {
   createStaticConfig(subdomain: string, rootPath: string): boolean {

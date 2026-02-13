@@ -362,19 +362,19 @@ After deploying, test your application:
 
 ### For Static Sites
 ```bash
-curl http://<project-name>.launch.me
+curl http://<project-name>.ivibe.site
 ```
 
 ### For APIs
 ```bash
 # Health check
-curl http://<project-name>.launch.me/health
+curl http://<project-name>.ivibe.site/health
 
 # Main endpoint
-curl http://<project-name>.launch.me/
+curl http://<project-name>.ivibe.site/
 
 # POST request
-curl -X POST http://<project-name>.launch.me/items \
+curl -X POST http://<project-name>.ivibe.site/items \
   -H "Content-Type: application/json" \
   -d '{"text":"Test item"}'
 ```
@@ -382,7 +382,7 @@ curl -X POST http://<project-name>.launch.me/items \
 ### In Browser
 Simply navigate to:
 ```
-http://<project-name>.launch.me
+http://<project-name>.ivibe.site
 ```
 
 ## Tips

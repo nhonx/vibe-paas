@@ -5,7 +5,7 @@ Complete API reference for the PaaS Management System.
 ## Base URL
 
 - Development: `http://localhost:8000`
-- Production: `http://api.launch.me`
+- Production: `http://api.ivibe.site`
 
 ## Authentication
 

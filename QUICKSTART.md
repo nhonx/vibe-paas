@@ -90,9 +90,9 @@ Launch Command: ["python", "app.py"]
 ### Accessing Deployed Projects
 
 In development mode, projects are accessible at:
-- `http://<project-name>.launch.me` (requires DNS configuration)
+- `http://<project-name>.ivibe.site` (requires DNS configuration)
 
-In production, configure your DNS to point `*.launch.me` to your VPS IP.
+In production, configure your DNS to point `*.ivibe.site` to your VPS IP.
 
 ## Production Deployment
 
@@ -106,8 +106,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for complete production deployment instructio
    ```bash
    sudo ./scripts/install.sh
    ```
-4. Configure DNS (wildcard A record: `*.launch.me → VPS_IP`)
-5. Access at `http://launch.me`
+4. Configure DNS (wildcard A record: `*.ivibe.site → VPS_IP`)
+5. Access at `http://ivibe.site`
 
 ## Docker Compose (Alternative)
 

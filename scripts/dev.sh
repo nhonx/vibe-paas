@@ -22,7 +22,7 @@ fi
 # Create .env.local if it doesn't exist
 if [ ! -f .env.local ]; then
     cat > .env.local <<EOF
-DOMAIN=launch.me
+DOMAIN=ivibe.site
 NGINX_CONFIG_PATH=../nginx-configs
 PROJECTS_BASE_PATH=../data/projects
 PORT_RANGE_START=10000

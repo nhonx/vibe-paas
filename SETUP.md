@@ -46,10 +46,10 @@ sudo ./scripts/install.sh
 ```
 
 2. **Configure DNS:**
-- `launch.me` → Your VPS IP
-- `*.launch.me` → Your VPS IP (wildcard)
+- `ivibe.site` → Your VPS IP
+- `*.ivibe.site` → Your VPS IP (wildcard)
 
-3. **Access:** http://launch.me
+3. **Access:** http://ivibe.site
 
 ## Project Structure
 
@@ -76,7 +76,7 @@ paas/
 Create `frontend/.env.local`:
 
 ```env
-DOMAIN=launch.me
+DOMAIN=ivibe.site
 NGINX_CONFIG_PATH=/etc/nginx/sites-enabled
 PROJECTS_BASE_PATH=./data/projects
 PORT_RANGE_START=10000

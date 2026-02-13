@@ -6,7 +6,7 @@ A complete Platform-as-a-Service (PaaS) solution for deploying and managing stat
 
 - **Static Projects**: Deploy static websites using Nginx
 - **Serverside Projects**: Deploy applications using Docker containers
-- **Subdomain Routing**: Automatic subdomain configuration (e.g., `app.launch.me`)
+- **Subdomain Routing**: Automatic subdomain configuration (e.g., `app.ivibe.site`)
 - **GitHub Integration**: Clone and deploy directly from GitHub repositories
 - **Project Management**: Start, stop, and monitor running projects
 - **Web UI**: Simple Next.js interface for managing deployments
@@ -23,7 +23,7 @@ A complete Platform-as-a-Service (PaaS) solution for deploying and managing stat
 - Ubuntu/Debian VPS with root access
 - Docker and Docker Compose installed
 - Nginx installed
-- Domain configured with wildcard DNS (*.launch.me → VPS IP)
+- Domain configured with wildcard DNS (*.ivibe.site → VPS IP)
 - Python 3.9+
 - Node.js 18+
 
