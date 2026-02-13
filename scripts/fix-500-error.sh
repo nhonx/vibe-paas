@@ -10,8 +10,18 @@ if [ -z "$1" ]; then
 fi
 
 PROJECT_NAME="$1"
-PROJECT_DIR="/opt/paas/data/projects/$PROJECT_NAME"
+
+# Determine base directory
+if [ -d "/opt/paas" ]; then
+    BASE_DIR="/opt/paas"
+else
+    BASE_DIR="$(pwd)"
+fi
+
+PROJECT_DIR="$BASE_DIR/data/projects/$PROJECT_NAME"
 NGINX_CONFIG="/etc/nginx/sites-enabled/$PROJECT_NAME.conf"
+
+echo "Base directory: $BASE_DIR"
 
 echo "=========================================="
 echo "Fixing 500 Error for: $PROJECT_NAME"

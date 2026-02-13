@@ -61,30 +61,45 @@ async function prepareProjectDirectory(project: Project): Promise<string> {
 
 function fixProjectPermissions(projectDir: string): void {
   try {
-    const { execSync } = require('child_process');
-    
     console.log(`Fixing permissions for: ${projectDir}`);
     
-    // Set directory permissions to 755 (rwxr-xr-x)
-    execSync(`find "${projectDir}" -type d -exec chmod 755 {} \\;`, { stdio: 'pipe' });
-    
-    // Set file permissions to 644 (rw-r--r--)
-    execSync(`find "${projectDir}" -type f -exec chmod 644 {} \\;`, { stdio: 'pipe' });
-    
-    // Change ownership to www-data (Nginx user) if running as root
-    try {
-      execSync(`chown -R www-data:www-data "${projectDir}"`, { stdio: 'pipe' });
-      console.log(`✓ Ownership changed to www-data:www-data`);
-    } catch (error) {
-      // If not running as root, at least ensure readable by all
-      console.log(`⚠ Cannot change ownership (not root), ensuring world-readable`);
-      execSync(`chmod -R a+rX "${projectDir}"`, { stdio: 'pipe' });
+    // Verify directory exists
+    if (!fs.existsSync(projectDir)) {
+      console.error(`Directory does not exist: ${projectDir}`);
+      return;
     }
     
+    // Set directory permissions to 755 (rwxr-xr-x)
+    console.log(`Setting directory permissions to 755...`);
+    execSync(`find "${projectDir}" -type d -exec chmod 755 {} \\;`, { stdio: 'inherit' });
+    
+    // Set file permissions to 644 (rw-r--r--)
+    console.log(`Setting file permissions to 644...`);
+    execSync(`find "${projectDir}" -type f -exec chmod 644 {} \\;`, { stdio: 'inherit' });
+    
+    // Change ownership to www-data (Nginx user)
+    // This is critical for Nginx to access files
+    try {
+      console.log(`Changing ownership to www-data:www-data...`);
+      execSync(`chown -R www-data:www-data "${projectDir}"`, { stdio: 'inherit' });
+      console.log(`✓ Ownership changed to www-data:www-data`);
+    } catch (error: any) {
+      console.error(`⚠ Cannot change ownership: ${error.message}`);
+      console.log(`Trying alternative: making files world-readable...`);
+      // Make readable by everyone as fallback
+      execSync(`chmod -R a+rX "${projectDir}"`, { stdio: 'inherit' });
+      console.log(`✓ Files are now world-readable`);
+    }
+    
+    // Verify permissions were set
+    const stats = fs.statSync(projectDir);
+    const mode = (stats.mode & parseInt('777', 8)).toString(8);
+    console.log(`✓ Final directory permissions: ${mode}`);
     console.log(`✓ Permissions fixed for ${projectDir}`);
   } catch (error: any) {
     console.error(`Failed to fix permissions: ${error.message}`);
-    // Don't throw - permissions might still work
+    console.error(`Stack: ${error.stack}`);
+    throw new Error(`Permission fix failed: ${error.message}`);
   }
 }
 
@@ -179,7 +194,13 @@ export const projectService = {
 
       if (project.type === 'static') {
         // Ensure permissions are correct before configuring Nginx
+        console.log('Fixing permissions before Nginx configuration...');
         fixProjectPermissions(projectDir);
+        
+        // Verify permissions were actually set
+        const stats = fs.statSync(projectDir);
+        console.log(`Directory owner: ${stats.uid}:${stats.gid}`);
+        console.log(`Directory mode: ${(stats.mode & parseInt('777', 8)).toString(8)}`);
         
         // Configure Nginx for static site
         nginxService.createStaticConfig(project.subdomain, projectDir);

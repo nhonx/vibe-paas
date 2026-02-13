@@ -15,7 +15,17 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-PROJECTS_DIR="/opt/paas/data/projects"
+# Determine base directory
+if [ -d "/opt/paas" ]; then
+    BASE_DIR="/opt/paas"
+else
+    BASE_DIR="$(pwd)"
+fi
+
+PROJECTS_DIR="$BASE_DIR/data/projects"
+echo "Base directory: $BASE_DIR"
+echo "Projects directory: $PROJECTS_DIR"
+echo ""
 
 if [ ! -d "$PROJECTS_DIR" ]; then
     echo "Projects directory not found: $PROJECTS_DIR"

@@ -12,9 +12,17 @@ fi
 PROJECT_NAME="$1"
 DOMAIN="${2:-ivibe.site}"
 
+# Determine base directory
+if [ -d "/opt/paas" ]; then
+    BASE_DIR="/opt/paas"
+else
+    BASE_DIR="$(pwd)"
+fi
+
 echo "=========================================="
 echo "Project Deployment Debugger"
 echo "=========================================="
+echo "Base directory: $BASE_DIR"
 echo "Project: $PROJECT_NAME"
 echo "Domain: $DOMAIN"
 echo "Expected URL: http://$PROJECT_NAME.$DOMAIN"
@@ -22,8 +30,9 @@ echo ""
 
 # Check 1: Project exists in database
 echo "1. Checking database..."
-if [ -f /opt/paas/data/paas.db ]; then
-    PROJECT_INFO=$(sqlite3 /opt/paas/data/paas.db "SELECT id, name, type, status, subdomain FROM projects WHERE name='$PROJECT_NAME';" 2>/dev/null)
+DB_PATH="$BASE_DIR/data/paas.db"
+if [ -f "$DB_PATH" ]; then
+    PROJECT_INFO=$(sqlite3 "$DB_PATH" "SELECT id, name, type, status, subdomain FROM projects WHERE name='$PROJECT_NAME';" 2>/dev/null)
     if [ -z "$PROJECT_INFO" ]; then
         echo "   ✗ Project '$PROJECT_NAME' not found in database"
         echo ""
@@ -35,14 +44,14 @@ if [ -f /opt/paas/data/paas.db ]; then
         echo "     $PROJECT_INFO"
     fi
 else
-    echo "   ✗ Database not found at /opt/paas/data/paas.db"
+    echo "   ✗ Database not found at $DB_PATH"
     exit 1
 fi
 echo ""
 
 # Check 2: Project files exist
 echo "2. Checking project files..."
-PROJECT_DIR="/opt/paas/data/projects/$PROJECT_NAME"
+PROJECT_DIR="$BASE_DIR/data/projects/$PROJECT_NAME"
 if [ -d "$PROJECT_DIR" ]; then
     echo "   ✓ Project directory exists: $PROJECT_DIR"
     echo "   Files:"
