@@ -55,7 +55,7 @@ else
 fi
 
 # Create project directory
-PROJECT_DIR="/opt/paas"
+PROJECT_DIR="$(pwd)"
 echo "Creating project directory at $PROJECT_DIR..."
 mkdir -p $PROJECT_DIR
 cd $PROJECT_DIR
