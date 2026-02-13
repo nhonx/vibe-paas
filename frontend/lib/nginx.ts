@@ -3,7 +3,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 
 const NGINX_CONFIG_PATH = process.env.NGINX_CONFIG_PATH || '/etc/nginx/sites-enabled';
-const DOMAIN = process.env.DOMAIN || 'ivibe.site';
+const DOMAIN = process.env.DOMAIN || 'launch.me';
 
 export const nginxService = {
   createStaticConfig(subdomain: string, rootPath: string): boolean {
@@ -104,13 +104,21 @@ export const nginxService = {
   reloadNginx(): boolean {
     try {
       // Test config first
-      execSync('nginx -t', { stdio: 'pipe' });
+      const testResult = execSync('nginx -t 2>&1', { encoding: 'utf-8' });
+      console.log('Nginx test:', testResult);
+      
       // Reload
       execSync('nginx -s reload', { stdio: 'pipe' });
+      console.log('Nginx reloaded successfully');
       return true;
-    } catch (error) {
-      console.warn('Nginx reload failed (may not be installed in dev):', error);
-      return true; // Don't fail in dev environment
+    } catch (error: any) {
+      console.error('Nginx reload failed:', error.message);
+      // Check if it's a dev environment
+      if (!fs.existsSync('/etc/nginx')) {
+        console.warn('Nginx not installed (dev environment), skipping reload');
+        return true;
+      }
+      return false;
     }
   }
 };
