@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.1.0",
+    "next": "^14.2.35",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "axios": "^1.6.5",
@@ -22,6 +22,7 @@
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
+    "@types/dockerode": "^4.0.1",
     "@types/better-sqlite3": "^7.6.8",
     "typescript": "^5.3.3",
     "autoprefixer": "^10.4.17",

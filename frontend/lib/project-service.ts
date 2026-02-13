@@ -139,7 +139,7 @@ export const projectService = {
     }
 
     try {
-      projectDb.update(projectId, { status: 'building', error_message: null });
+      projectDb.update(projectId, { status: 'building' });
 
       // Prepare project directory
       const projectDir = await prepareProjectDirectory(project);
@@ -212,7 +212,7 @@ export const projectService = {
       }
     }
 
-    projectDb.update(projectId, { status: 'running', error_message: null });
+    projectDb.update(projectId, { status: 'running' });
     return projectDb.getById(projectId)!;
   },
 
