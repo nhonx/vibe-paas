@@ -15,6 +15,9 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+
+
+
 # Update system
 echo "Updating system packages..."
 apt-get update
@@ -28,36 +31,49 @@ apt-get install -y \
     git \
     nginx
 
-# Install Node.js 18
-echo "Installing Node.js 18..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-apt-get install -y nodejs
-
-# Install Docker
-echo "Installing Docker..."
-if ! command -v docker &> /dev/null; then
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sh get-docker.sh
-    rm get-docker.sh
-    systemctl enable docker
-    systemctl start docker
+# Check for Node.js
+if command -v node &> /dev/null; then
+    echo "Node.js already installed: $(node -v)"
 else
-    echo "Docker already installed"
+    echo "Node.js not found. Installing..."
+    # Install Node.js 18
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+    apt-get install -y nodejs
 fi
 
-# Install Docker Compose
-echo "Installing Docker Compose..."
-if ! command -v docker-compose &> /dev/null; then
-    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
-else
-    echo "Docker Compose already installed"
-fi
 
+# Check for Docker
+if command -v docker &> /dev/null; then
+    echo "Docker already installed: $(docker --version)"
+else
+    echo "Docker not found. Installing..."
+        # Install Docker
+    echo "Installing Docker..."
+    if ! command -v docker &> /dev/null; then
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+        rm get-docker.sh
+        systemctl enable docker
+        systemctl start docker
+    else
+        echo "Docker already installed"
+    fi
+
+    # Install Docker Compose
+    echo "Installing Docker Compose..."
+    if ! command -v docker-compose &> /dev/null; then
+        curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+    else
+        echo "Docker Compose already installed"
+    fi
+fi
 # Create project directory
 PROJECT_DIR="/opt/paas"
 echo "Creating project directory at $PROJECT_DIR..."
 mkdir -p $PROJECT_DIR
+mkdir -p $PROJECT_DIR/backend
+mkdir -p $PROJECT_DIR/frontend
 cd $PROJECT_DIR
 cp -r $(pwd)/backend $PROJECT_DIR/backend
 cp -r $(pwd)/frontend $PROJECT_DIR/frontend
