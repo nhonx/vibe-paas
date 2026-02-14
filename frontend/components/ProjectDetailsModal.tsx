@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Project, projectsApi } from '@/lib/api';
+import React, { useState, useEffect } from "react";
+import { Project, projectsApi } from "@/lib/api";
 
 interface ProjectDetailsModalProps {
   isOpen: boolean;
@@ -12,25 +12,25 @@ export default function ProjectDetailsModal({
   onClose,
   project,
 }: ProjectDetailsModalProps) {
-  const [logs, setLogs] = useState<string>('');
+  const [logs, setLogs] = useState<string>("");
   const [loadingLogs, setLoadingLogs] = useState(false);
 
   useEffect(() => {
-    if (isOpen && project && project.type === 'serverside') {
+    if (isOpen && project && project.type === "serverside") {
       loadLogs();
     }
   }, [isOpen, project]);
 
   const loadLogs = async () => {
     if (!project) return;
-    
+
     setLoadingLogs(true);
     try {
       const response = await projectsApi.logs(project.id);
       setLogs(response.logs);
     } catch (error) {
-      console.error('Failed to load logs:', error);
-      setLogs('Failed to load logs');
+      console.error("Failed to load logs:", error);
+      setLogs("Failed to load logs");
     } finally {
       setLoadingLogs(false);
     }
@@ -39,157 +39,152 @@ export default function ProjectDetailsModal({
   if (!isOpen || !project) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Project Details: {project.name}
-            </h2>
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+      <div className="bg-white border-4 border-black shadow-neo-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-8 border-b-4 border-black pb-4">
+            <div>
+              <h2 className="text-3xl font-black italic tracking-tighter uppercase">
+                {project.name}
+              </h2>
+              <p className="font-bold text-gray-500">PROJECT DETAILS</p>
+            </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
+              className="w-10 h-10 bg-neo-pink border-2 border-black flex items-center justify-center font-bold text-xl shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all"
             >
               &times;
             </button>
           </div>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-neo-bg border-3 border-black p-4 shadow-neo-sm">
+                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
                   Status
                 </label>
-                <p className="mt-1 text-lg font-semibold capitalize">
-                  {project.status}
-                </p>
+                <p className="text-xl font-black uppercase">{project.status}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
+              <div className="bg-white border-3 border-black p-4 shadow-neo-sm">
+                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
                   Type
                 </label>
-                <p className="mt-1 text-lg font-semibold capitalize">
-                  {project.type}
-                </p>
+                <p className="text-xl font-black uppercase">{project.type}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
+              <div className="bg-white border-3 border-black p-4 shadow-neo-sm">
+                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
                   Subdomain
                 </label>
-                <p className="mt-1 text-lg">
+                <p className="text-lg font-bold truncate">
                   <a
                     href={`http://${project.subdomain}.ivibe.site`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
+                    className="text-neo-blue hover:bg-black hover:text-white px-1 -ml-1"
                   >
                     {project.subdomain}.ivibe.site
                   </a>
                 </p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
+              <div className="bg-white border-3 border-black p-4 shadow-neo-sm">
+                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
                   Source Type
                 </label>
-                <p className="mt-1 text-lg capitalize">{project.source_type}</p>
+                <p className="text-xl font-black uppercase">
+                  {project.source_type}
+                </p>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-500">
+            <div className="bg-gray-100 border-3 border-black p-4 shadow-neo-sm">
+              <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-2">
                 Source Path
               </label>
-              <p className="mt-1 text-sm bg-gray-50 p-2 rounded break-all">
+              <p className="text-sm font-mono break-all bg-white border-2 border-black p-2">
                 {project.source_path}
               </p>
             </div>
 
-            {project.port && (
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
-                  Port
-                </label>
-                <p className="mt-1 text-lg">{project.port}</p>
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {project.port && (
+                <div className="bg-white border-3 border-black p-4 shadow-neo-sm">
+                  <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
+                    Port
+                  </label>
+                  <p className="text-lg font-black font-mono">{project.port}</p>
+                </div>
+              )}
 
-            {project.launch_command && (
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
-                  Launch Command
-                </label>
-                <p className="mt-1 text-sm bg-gray-50 p-2 rounded font-mono">
-                  {project.launch_command}
-                </p>
-              </div>
-            )}
+              {project.launch_command && (
+                <div className="bg-white border-3 border-black p-4 shadow-neo-sm">
+                  <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
+                    Launch Command
+                  </label>
+                  <p className="text-sm font-mono bg-gray-50 border-2 border-black p-2">
+                    {project.launch_command}
+                  </p>
+                </div>
+              )}
+            </div>
 
             {project.container_id && (
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
+              <div className="bg-white border-3 border-black p-4 shadow-neo-sm">
+                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
                   Container ID
                 </label>
-                <p className="mt-1 text-sm bg-gray-50 p-2 rounded font-mono">
+                <p className="text-sm font-mono bg-gray-50 border-2 border-black p-2">
                   {project.container_id}
                 </p>
               </div>
             )}
 
             {project.description && (
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
+              <div className="bg-white border-3 border-black p-4 shadow-neo-sm">
+                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 mb-1">
                   Description
                 </label>
-                <p className="mt-1 text-sm">{project.description}</p>
+                <p className="font-medium italic border-l-4 border-neo-yellow pl-4">
+                  {project.description}
+                </p>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 text-xs font-bold text-gray-500 uppercase">
               <div>
-                <label className="block text-sm font-medium text-gray-500">
-                  Created At
-                </label>
-                <p className="mt-1 text-sm">
-                  {new Date(project.created_at).toLocaleString()}
-                </p>
+                Created: {new Date(project.created_at).toLocaleString()}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">
-                  Updated At
-                </label>
-                <p className="mt-1 text-sm">
-                  {new Date(project.updated_at).toLocaleString()}
-                </p>
+              <div className="text-right">
+                Updated: {new Date(project.updated_at).toLocaleString()}
               </div>
             </div>
 
-            {project.type === 'serverside' && (
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="block text-sm font-medium text-gray-500">
+            {project.type === "serverside" && (
+              <div className="border-t-4 border-black pt-6 mt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="block text-lg font-black uppercase tracking-wider">
                     Container Logs
                   </label>
                   <button
                     onClick={loadLogs}
                     disabled={loadingLogs}
-                    className="text-sm text-blue-500 hover:text-blue-600"
+                    className="px-3 py-1 bg-white border-2 border-black font-bold text-xs uppercase shadow-neo-sm hover:shadow-neo hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all"
                   >
-                    {loadingLogs ? 'Loading...' : 'Refresh'}
+                    {loadingLogs ? "Loading..." : "Refresh Logs"}
                   </button>
                 </div>
-                <div className="bg-gray-900 text-gray-100 p-4 rounded font-mono text-xs overflow-x-auto max-h-96 overflow-y-auto">
-                  <pre>{logs || 'No logs available'}</pre>
+                <div className="bg-neo-dark text-green-400 p-4 border-3 border-black shadow-neo font-mono text-xs overflow-x-auto max-h-64 overflow-y-auto">
+                  <pre>{logs || "No logs available"}</pre>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="mt-6">
+          <div className="mt-8">
             <button
               onClick={onClose}
-              className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+              className="w-full px-6 py-4 border-3 border-black bg-white text-black font-black uppercase tracking-wider shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all"
             >
-              Close
+              Close Details
             </button>
           </div>
         </div>

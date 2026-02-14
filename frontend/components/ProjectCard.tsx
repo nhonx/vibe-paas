@@ -1,5 +1,5 @@
-import React from 'react';
-import { Project } from '@/lib/api';
+import React from "react";
+import { Project } from "@/lib/api";
 
 interface ProjectCardProps {
   project: Project;
@@ -9,16 +9,16 @@ interface ProjectCardProps {
   onViewDetails: (id: number) => void;
 }
 
-const statusColors = {
-  running: 'bg-green-100 text-green-800',
-  stopped: 'bg-gray-100 text-gray-800',
-  building: 'bg-blue-100 text-blue-800',
-  failed: 'bg-red-100 text-red-800',
+const statusColors: Record<string, string> = {
+  running: "bg-neo-green text-black",
+  stopped: "bg-gray-300 text-black",
+  building: "bg-neo-blue text-white",
+  failed: "bg-neo-pink text-black",
 };
 
-const typeColors = {
-  static: 'bg-purple-100 text-purple-800',
-  serverside: 'bg-indigo-100 text-indigo-800',
+const typeColors: Record<string, string> = {
+  static: "bg-purple-300 text-black",
+  serverside: "bg-orange-300 text-black",
 };
 
 export default function ProjectCard({
@@ -29,75 +29,85 @@ export default function ProjectCard({
   onViewDetails,
 }: ProjectCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+    <div className="bg-white border-3 border-black shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all duration-200 p-6 flex flex-col h-full">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">{project.name}</h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <h3 className="text-2xl font-black text-black tracking-tight">
+            {project.name}
+          </h3>
+          <p className="text-sm font-bold text-gray-500 mt-1 uppercase tracking-wider">
             {project.subdomain}.ivibe.site
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-col items-end">
           <span
-            className={`px-2 py-1 text-xs font-medium rounded-full ${
-              statusColors[project.status]
+            className={`px-3 py-1 text-xs font-bold border-2 border-black shadow-neo-sm ${
+              statusColors[project.status] || "bg-gray-200 text-black"
             }`}
           >
-            {project.status}
+            {project.status.toUpperCase()}
           </span>
           <span
-            className={`px-2 py-1 text-xs font-medium rounded-full ${
-              typeColors[project.type]
+            className={`px-3 py-1 text-xs font-bold border-2 border-black shadow-neo-sm ${
+              typeColors[project.type] || "bg-gray-200 text-black"
             }`}
           >
-            {project.type}
+            {project.type.toUpperCase()}
           </span>
         </div>
       </div>
 
-      {project.description && (
-        <p className="text-sm text-gray-600 mb-4">{project.description}</p>
-      )}
+      <div className="flex-grow">
+        {project.description && (
+          <p className="text-sm font-medium border-l-4 border-black pl-3 py-1 mb-4 bg-gray-100">
+            {project.description}
+          </p>
+        )}
 
-      {project.error_message && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
-          <p className="text-sm text-red-800">{project.error_message}</p>
+        {project.error_message && (
+          <div className="mb-4 p-3 bg-red-100 border-2 border-black text-red-700 font-bold text-sm shadow-neo-sm">
+            ERROR: {project.error_message}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 border-t-2 border-black pt-4 border-dashed">
+          <span>{project.source_type}</span>
+          {project.port && (
+            <span className="bg-black text-white px-2 py-0.5">
+              {project.port}
+            </span>
+          )}
         </div>
-      )}
-
-      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-        <span>Source: {project.source_type}</span>
-        {project.port && <span>Port: {project.port}</span>}
       </div>
 
-      <div className="flex gap-2">
+      <div className="grid grid-cols-2 gap-3 mt-auto">
         <button
           onClick={() => onViewDetails(project.id)}
-          className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+          className="col-span-2 px-4 py-2 bg-white border-2 border-black font-bold shadow-neo-sm hover:shadow-neo hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all"
         >
-          Details
+          VIEW DETAILS
         </button>
-        {project.status === 'stopped' && (
+        {project.status === "stopped" && (
           <button
             onClick={() => onStart(project.id)}
-            className="flex-1 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            className="px-4 py-2 bg-neo-green border-2 border-black font-bold shadow-neo-sm hover:shadow-neo hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all"
           >
-            Start
+            START
           </button>
         )}
-        {project.status === 'running' && (
+        {project.status === "running" && (
           <button
             onClick={() => onStop(project.id)}
-            className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+            className="px-4 py-2 bg-neo-yellow border-2 border-black font-bold shadow-neo-sm hover:shadow-neo hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all"
           >
-            Stop
+            STOP
           </button>
         )}
         <button
           onClick={() => onDelete(project.id)}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          className="px-4 py-2 bg-neo-pink border-2 border-black font-bold shadow-neo-sm hover:shadow-neo hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all"
         >
-          Delete
+          DELETE
         </button>
       </div>
     </div>

@@ -73,7 +73,9 @@ PROJECT_DIR="/opt/paas"
 echo "Creating project directory at $PROJECT_DIR..."
 mkdir -p $PROJECT_DIR
 mkdir -p $PROJECT_DIR/frontend
+mkdir -p $PROJECT_DIR/nginx
 cp -r $(pwd)/frontend/* $PROJECT_DIR/frontend/
+cp -r $(pwd)/nginx/* $PROJECT_DIR/nginx/
 cd $PROJECT_DIR
 
 
