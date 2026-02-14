@@ -1,14 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
-import { simpleGit } from 'simple-git';
-import { projectDb, Project, ProjectCreate } from './db';
-import { dockerService } from './docker';
-import { nginxService } from './nginx';
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
+import { simpleGit } from "simple-git";
+import { projectDb, Project, ProjectCreate } from "./db";
+import { dockerService } from "./docker";
+import { nginxService } from "./nginx";
 
-const PROJECTS_BASE_PATH = process.env.PROJECTS_BASE_PATH || path.join(process.cwd(), 'data', 'projects');
-const PORT_RANGE_START = parseInt(process.env.PORT_RANGE_START || '10000');
-const PORT_RANGE_END = parseInt(process.env.PORT_RANGE_END || '20000');
+const PROJECTS_BASE_PATH =
+  process.env.PROJECTS_BASE_PATH ||
+  path.join(process.cwd(), "data", "projects");
+const PORT_RANGE_START = parseInt(process.env.PORT_RANGE_START || "10000");
+const PORT_RANGE_END = parseInt(process.env.PORT_RANGE_END || "20000");
 
 // Ensure projects directory exists
 if (!fs.existsSync(PROJECTS_BASE_PATH)) {
@@ -18,12 +20,14 @@ if (!fs.existsSync(PROJECTS_BASE_PATH)) {
 function getAvailablePort(): number {
   const usedPorts = projectDb.getUsedPorts();
   for (let i = 0; i < 100; i++) {
-    const port = Math.floor(Math.random() * (PORT_RANGE_END - PORT_RANGE_START)) + PORT_RANGE_START;
+    const port =
+      Math.floor(Math.random() * (PORT_RANGE_END - PORT_RANGE_START)) +
+      PORT_RANGE_START;
     if (!usedPorts.includes(port)) {
       return port;
     }
   }
-  throw new Error('No available ports');
+  throw new Error("No available ports");
 }
 
 async function prepareProjectDirectory(project: Project): Promise<string> {
@@ -36,7 +40,7 @@ async function prepareProjectDirectory(project: Project): Promise<string> {
 
   fs.mkdirSync(projectDir, { recursive: true, mode: 0o755 });
 
-  if (project.source_type === 'github') {
+  if (project.source_type === "github") {
     // Clone from GitHub
     const git = simpleGit();
     await git.clone(project.source_path, projectDir);
@@ -49,7 +53,10 @@ async function prepareProjectDirectory(project: Project): Promise<string> {
     if (fs.statSync(project.source_path).isDirectory()) {
       fs.cpSync(project.source_path, projectDir, { recursive: true });
     } else {
-      fs.copyFileSync(project.source_path, path.join(projectDir, path.basename(project.source_path)));
+      fs.copyFileSync(
+        project.source_path,
+        path.join(projectDir, path.basename(project.source_path)),
+      );
     }
   }
 
@@ -62,54 +69,45 @@ async function prepareProjectDirectory(project: Project): Promise<string> {
 function fixProjectPermissions(projectDir: string): void {
   try {
     console.log(`Fixing permissions for: ${projectDir}`);
-    
+
     // Verify directory exists
     if (!fs.existsSync(projectDir)) {
       console.error(`Directory does not exist: ${projectDir}`);
       return;
     }
-    
-    // Set directory permissions to 755 (rwxr-xr-x)
-    console.log(`Setting directory permissions to 755...`);
-    execSync(`find "${projectDir}" -type d -exec chmod 755 {} \\;`, { stdio: 'inherit' });
-    
-    // Set file permissions to 644 (rw-r--r--)
-    console.log(`Setting file permissions to 644...`);
-    execSync(`find "${projectDir}" -type f -exec chmod 644 {} \\;`, { stdio: 'inherit' });
-    
-    // Change ownership to www-data (Nginx user)
-    // This is critical for Nginx to access files
-    try {
-      console.log(`Changing ownership to www-data:www-data...`);
-      execSync(`chown -R www-data:www-data "${projectDir}"`, { stdio: 'inherit' });
-      console.log(`✓ Ownership changed to www-data:www-data`);
-    } catch (error: any) {
-      console.error(`⚠ Cannot change ownership: ${error.message}`);
-      console.log(`Trying alternative: making files world-readable...`);
-      // Make readable by everyone as fallback
-      execSync(`chmod -R a+rX "${projectDir}"`, { stdio: 'inherit' });
-      console.log(`✓ Files are now world-readable`);
+
+    const scriptPath = path.resolve(
+      process.cwd(),
+      "../../scripts/setup-project-permissions.sh",
+    );
+
+    if (!fs.existsSync(scriptPath)) {
+      console.error(`Permission script not found at: ${scriptPath}`);
+      // Fallback to basic chmod if script is missing
+      console.log(`Falling back to basic chmod...`);
+      execSync(`chmod -R 755 "${projectDir}"`, { stdio: "inherit" });
+      return;
     }
-    
-    // Verify permissions were set
-    const stats = fs.statSync(projectDir);
-    const mode = (stats.mode & parseInt('777', 8)).toString(8);
-    console.log(`✓ Final directory permissions: ${mode}`);
+
+    console.log(`Executing permission script: ${scriptPath}`);
+    execSync(`"${scriptPath}" "${projectDir}"`, { stdio: "inherit" });
+
     console.log(`✓ Permissions fixed for ${projectDir}`);
   } catch (error: any) {
     console.error(`Failed to fix permissions: ${error.message}`);
     console.error(`Stack: ${error.stack}`);
-    throw new Error(`Permission fix failed: ${error.message}`);
+    // Don't throw here to allow flow to continue, just log error
+    // throw new Error(`Permission fix failed: ${error.message}`);
   }
 }
 
 function createDockerfile(projectDir: string, launchCommand?: string): string {
-  const dockerfilePath = path.join(projectDir, 'Dockerfile.generated');
+  const dockerfilePath = path.join(projectDir, "Dockerfile.generated");
 
-  let content = '';
+  let content = "";
 
   // Check for Node.js project
-  if (fs.existsSync(path.join(projectDir, 'package.json'))) {
+  if (fs.existsSync(path.join(projectDir, "package.json"))) {
     content = `FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
@@ -120,7 +118,7 @@ CMD ${launchCommand || '["npm", "start"]'}
 `;
   }
   // Check for Python project
-  else if (fs.existsSync(path.join(projectDir, 'requirements.txt'))) {
+  else if (fs.existsSync(path.join(projectDir, "requirements.txt"))) {
     content = `FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt .
@@ -131,7 +129,7 @@ CMD ${launchCommand || '["python", "app.py"]'}
 `;
   }
   // Check for Go project
-  else if (fs.existsSync(path.join(projectDir, 'go.mod'))) {
+  else if (fs.existsSync(path.join(projectDir, "go.mod"))) {
     content = `FROM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY go.* ./
@@ -172,7 +170,7 @@ export const projectService = {
     const project = projectDb.create(data);
 
     // Allocate port for serverside projects
-    if (project.type === 'serverside') {
+    if (project.type === "serverside") {
       const port = getAvailablePort();
       projectDb.update(project.id, { port });
     }
@@ -183,33 +181,38 @@ export const projectService = {
   async deployProject(projectId: number): Promise<Project> {
     const project = projectDb.getById(projectId);
     if (!project) {
-      throw new Error('Project not found');
+      throw new Error("Project not found");
     }
 
     try {
-      projectDb.update(projectId, { status: 'building' });
+      projectDb.update(projectId, { status: "building" });
 
       // Prepare project directory
       const projectDir = await prepareProjectDirectory(project);
 
-      if (project.type === 'static') {
+      if (project.type === "static") {
         // Ensure permissions are correct before configuring Nginx
-        console.log('Fixing permissions before Nginx configuration...');
+        console.log("Fixing permissions before Nginx configuration...");
         fixProjectPermissions(projectDir);
-        
+
         // Verify permissions were actually set
         const stats = fs.statSync(projectDir);
         console.log(`Directory owner: ${stats.uid}:${stats.gid}`);
-        console.log(`Directory mode: ${(stats.mode & parseInt('777', 8)).toString(8)}`);
-        
+        console.log(
+          `Directory mode: ${(stats.mode & parseInt("777", 8)).toString(8)}`,
+        );
+
         // Configure Nginx for static site
         nginxService.createStaticConfig(project.subdomain, projectDir);
-        projectDb.update(projectId, { status: 'running' });
+        projectDb.update(projectId, { status: "running" });
       } else {
         // Serverside project
-        let dockerfilePath = path.join(projectDir, 'Dockerfile');
+        let dockerfilePath = path.join(projectDir, "Dockerfile");
         if (!fs.existsSync(dockerfilePath)) {
-          dockerfilePath = createDockerfile(projectDir, project.launch_command || undefined);
+          dockerfilePath = createDockerfile(
+            projectDir,
+            project.launch_command || undefined,
+          );
         }
 
         // Build image
@@ -217,36 +220,39 @@ export const projectService = {
         const buildSuccess = await dockerService.buildImage(
           projectDir,
           path.basename(dockerfilePath),
-          imageTag
+          imageTag,
         );
 
         if (!buildSuccess) {
-          throw new Error('Failed to build Docker image');
+          throw new Error("Failed to build Docker image");
         }
 
         // Start container
         const containerId = await dockerService.createAndStartContainer({
           image: imageTag,
           name: `paas-${project.name}`,
-          port: project.port!
+          port: project.port!,
         });
 
         if (!containerId) {
-          throw new Error('Failed to start container');
+          throw new Error("Failed to start container");
         }
 
-        projectDb.update(projectId, { container_id: containerId, dockerfile_path: dockerfilePath });
+        projectDb.update(projectId, {
+          container_id: containerId,
+          dockerfile_path: dockerfilePath,
+        });
 
         // Configure Nginx reverse proxy
         nginxService.createProxyConfig(project.subdomain, project.port!);
-        projectDb.update(projectId, { status: 'running' });
+        projectDb.update(projectId, { status: "running" });
       }
 
       return projectDb.getById(projectId)!;
     } catch (error: any) {
       projectDb.update(projectId, {
-        status: 'failed',
-        error_message: error.message
+        status: "failed",
+        error_message: error.message,
       });
       throw error;
     }
@@ -255,42 +261,42 @@ export const projectService = {
   async startProject(projectId: number): Promise<Project> {
     const project = projectDb.getById(projectId);
     if (!project) {
-      throw new Error('Project not found');
+      throw new Error("Project not found");
     }
 
-    if (project.status === 'running') {
+    if (project.status === "running") {
       return project;
     }
 
-    if (project.type === 'serverside' && project.container_id) {
+    if (project.type === "serverside" && project.container_id) {
       const success = await dockerService.startContainer(project.container_id);
       if (!success) {
-        throw new Error('Failed to start container');
+        throw new Error("Failed to start container");
       }
     }
 
-    projectDb.update(projectId, { status: 'running' });
+    projectDb.update(projectId, { status: "running" });
     return projectDb.getById(projectId)!;
   },
 
   async stopProject(projectId: number): Promise<Project> {
     const project = projectDb.getById(projectId);
     if (!project) {
-      throw new Error('Project not found');
+      throw new Error("Project not found");
     }
 
-    if (project.type === 'serverside' && project.container_id) {
+    if (project.type === "serverside" && project.container_id) {
       await dockerService.stopContainer(project.container_id);
     }
 
-    projectDb.update(projectId, { status: 'stopped' });
+    projectDb.update(projectId, { status: "stopped" });
     return projectDb.getById(projectId)!;
   },
 
   async deleteProject(projectId: number): Promise<boolean> {
     const project = projectDb.getById(projectId);
     if (!project) {
-      throw new Error('Project not found');
+      throw new Error("Project not found");
     }
 
     // Remove container
@@ -314,13 +320,13 @@ export const projectService = {
   async getProjectLogs(projectId: number, tail: number = 100): Promise<string> {
     const project = projectDb.getById(projectId);
     if (!project) {
-      throw new Error('Project not found');
+      throw new Error("Project not found");
     }
 
-    if (project.type === 'serverside' && project.container_id) {
+    if (project.type === "serverside" && project.container_id) {
       return await dockerService.getContainerLogs(project.container_id, tail);
     }
 
-    return 'No logs available for static projects';
-  }
+    return "No logs available for static projects";
+  },
 };
