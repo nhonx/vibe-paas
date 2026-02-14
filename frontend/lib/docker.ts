@@ -5,7 +5,8 @@ const docker = new Docker();
 export interface ContainerConfig {
   image: string;
   name: string;
-  port: number;
+  port: number;  // Host port to expose
+  containerPort?: number;  // Container internal port (default: 80)
   environment?: Record<string, string>;
   volumes?: Record<string, { bind: string; mode: string }>;
 }
@@ -51,17 +52,19 @@ export const dockerService = {
         // Container doesn't exist, ignore
       }
 
+      // Use containerPort if specified, otherwise default to 80
+      const internalPort = config.containerPort || 80;
+      const portKey = `${internalPort}/tcp`;
+
       const container = await docker.createContainer({
         Image: config.image,
         name: config.name,
         ExposedPorts: {
-          '80/tcp': {},
-          '8080/tcp': {}
+          [portKey]: {}
         },
         HostConfig: {
           PortBindings: {
-            '80/tcp': [{ HostPort: config.port.toString() }],
-            '8080/tcp': [{ HostPort: config.port.toString() }]
+            [portKey]: [{ HostPort: config.port.toString() }]
           },
           RestartPolicy: {
             Name: 'unless-stopped'

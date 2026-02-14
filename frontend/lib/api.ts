@@ -11,6 +11,7 @@ export interface Project {
   source_path: string;
   subdomain: string;
   port?: number;
+  container_port?: number;
   container_id?: string;
   launch_command?: string;
   dockerfile_path?: string;
@@ -26,6 +27,7 @@ export interface ProjectCreate {
   source_type: 'local' | 'github';
   source_path: string;
   launch_command?: string;
+  container_port?: number;
   description?: string;
 }
 

@@ -101,7 +101,7 @@ function fixProjectPermissions(projectDir: string): void {
   }
 }
 
-function createDockerfile(projectDir: string, launchCommand?: string): string {
+function createDockerfile(projectDir: string, launchCommand?: string, containerPort: number = 80): string {
   const dockerfilePath = path.join(projectDir, "Dockerfile.generated");
 
   let content = "";
@@ -113,7 +113,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-EXPOSE 80
+EXPOSE ${containerPort}
 CMD ${launchCommand || '["npm", "start"]'}
 `;
   }
@@ -124,7 +124,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-EXPOSE 80
+EXPOSE ${containerPort}
 CMD ${launchCommand || '["python", "app.py"]'}
 `;
   }
@@ -140,7 +140,7 @@ RUN go build -o main .
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/main .
-EXPOSE 80
+EXPOSE ${containerPort}
 CMD ${launchCommand || '["./main"]'}
 `;
   }
@@ -149,7 +149,7 @@ CMD ${launchCommand || '["./main"]'}
     content = `FROM ubuntu:22.04
 WORKDIR /app
 COPY . .
-EXPOSE 80
+EXPOSE ${containerPort}
 CMD ${launchCommand || '["bash"]'}
 `;
   }
@@ -193,7 +193,7 @@ export const projectService = {
       if (project.type === "static") {
         // Ensure permissions are correct before configuring Nginx
         console.log("Fixing permissions before Nginx configuration...");
-        fixProjectPermissions(projectDir);
+        // fixProjectPermissions(projectDir);
 
         // Verify permissions were actually set
         const stats = fs.statSync(projectDir);
@@ -212,6 +212,7 @@ export const projectService = {
           dockerfilePath = createDockerfile(
             projectDir,
             project.launch_command || undefined,
+            project.container_port || 80,
           );
         }
 
@@ -232,6 +233,7 @@ export const projectService = {
           image: imageTag,
           name: `paas-${project.name}`,
           port: project.port!,
+          containerPort: project.container_port || 80,
         });
 
         if (!containerId) {

@@ -26,6 +26,7 @@ db.exec(`
     source_path TEXT NOT NULL,
     subdomain TEXT UNIQUE NOT NULL,
     port INTEGER,
+    container_port INTEGER DEFAULT 80,
     container_id TEXT,
     launch_command TEXT,
     dockerfile_path TEXT,
@@ -39,6 +40,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 `);
 
+// Migration: Add container_port column if it doesn't exist
+try {
+  db.exec(`ALTER TABLE projects ADD COLUMN container_port INTEGER DEFAULT 80`);
+} catch (e) {
+  // Column already exists, ignore
+}
+
 export interface Project {
   id: number;
   name: string;
@@ -48,6 +56,7 @@ export interface Project {
   source_path: string;
   subdomain: string;
   port?: number;
+  container_port?: number;
   container_id?: string;
   launch_command?: string;
   dockerfile_path?: string;
@@ -63,6 +72,7 @@ export interface ProjectCreate {
   source_type: 'local' | 'github';
   source_path: string;
   launch_command?: string;
+  container_port?: number;
   description?: string;
 }
 
@@ -81,8 +91,8 @@ export const projectDb = {
 
   create(data: ProjectCreate): Project {
     const stmt = db.prepare(`
-      INSERT INTO projects (name, type, source_type, source_path, subdomain, launch_command, description)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO projects (name, type, source_type, source_path, subdomain, launch_command, container_port, description)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
     const result = stmt.run(
@@ -92,6 +102,7 @@ export const projectDb = {
       data.source_path,
       data.name, // subdomain same as name
       data.launch_command || null,
+      data.container_port || 80,
       data.description || null
     );
 

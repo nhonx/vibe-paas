@@ -18,6 +18,7 @@ export default function CreateProjectModal({
     source_type: "github",
     source_path: "",
     launch_command: "",
+    container_port: 80,
     description: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +37,7 @@ export default function CreateProjectModal({
         source_type: "github",
         source_path: "",
         launch_command: "",
+        container_port: 80,
         description: "",
       });
       onClose();
@@ -164,23 +166,44 @@ export default function CreateProjectModal({
             </div>
 
             {formData.type === "serverside" && (
-              <div>
-                <label className="block text-sm font-black uppercase tracking-wider mb-2">
-                  Launch Command (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.launch_command}
-                  onChange={(e) =>
-                    setFormData({ ...formData, launch_command: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border-3 border-black font-bold focus:outline-none focus:shadow-neo transition-shadow placeholder-gray-400 bg-gray-50 font-mono"
-                  placeholder='["npm", "start"]'
-                />
-                <p className="text-xs font-bold text-gray-500 mt-1 uppercase">
-                  Leave empty to auto-detect from project structure
-                </p>
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm font-black uppercase tracking-wider mb-2">
+                    Container Port
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={65535}
+                    value={formData.container_port || 80}
+                    onChange={(e) =>
+                      setFormData({ ...formData, container_port: parseInt(e.target.value) || 80 })
+                    }
+                    className="w-full px-4 py-3 border-3 border-black font-bold focus:outline-none focus:shadow-neo transition-shadow placeholder-gray-400 bg-gray-50"
+                    placeholder="80"
+                  />
+                  <p className="text-xs font-bold text-gray-500 mt-1 uppercase">
+                    The port your application listens on inside the container (e.g., 3000, 8080, 80)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-black uppercase tracking-wider mb-2">
+                    Launch Command (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.launch_command}
+                    onChange={(e) =>
+                      setFormData({ ...formData, launch_command: e.target.value })
+                    }
+                    className="w-full px-4 py-3 border-3 border-black font-bold focus:outline-none focus:shadow-neo transition-shadow placeholder-gray-400 bg-gray-50 font-mono"
+                    placeholder='["npm", "start"]'
+                  />
+                  <p className="text-xs font-bold text-gray-500 mt-1 uppercase">
+                    Leave empty to auto-detect from project structure
+                  </p>
+                </div>
+              </>
             )}
 
             <div>
