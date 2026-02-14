@@ -72,11 +72,10 @@ fi
 PROJECT_DIR="/opt/paas"
 echo "Creating project directory at $PROJECT_DIR..."
 mkdir -p $PROJECT_DIR
-mkdir -p $PROJECT_DIR/backend
 mkdir -p $PROJECT_DIR/frontend
+cp -r $(pwd)/frontend/* $PROJECT_DIR/frontend/
 cd $PROJECT_DIR
-cp -r $(pwd)/backend $PROJECT_DIR/backend
-cp -r $(pwd)/frontend $PROJECT_DIR/frontend
+
 
 # Clone or copy project files
 echo "Setting up project files..."
