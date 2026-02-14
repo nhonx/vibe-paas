@@ -70,6 +70,12 @@ else
 fi
 # Create project directory
 PROJECT_DIR="/opt/paas"
+
+if [ -d "$PROJECT_DIR" ]; then
+    echo "Removing existing project directory at $PROJECT_DIR..."
+    rm -rf "$PROJECT_DIR"
+fi
+
 echo "Creating project directory at $PROJECT_DIR..."
 mkdir -p $PROJECT_DIR
 mkdir -p $PROJECT_DIR/frontend
